@@ -8,11 +8,20 @@ function Signup() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('consumer');
+  const [errorMessage, setErrorMessage] = useState('');
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Client-side validation
+    if (!username || !email || !password) {
+      setErrorMessage('All fields are required!');
+      return;
+    }
+
     const data = { username, email, password, role };
+
     try {
       // Send signup request to backend with the baseUrl
       const response = await axios.post(`${config.baseUrl}/signup`, data);
@@ -21,13 +30,21 @@ function Signup() {
       alert(response.data.message);
       navigate('/login');
     } catch (error) {
-      alert('Error signing up: ' + error.response?.data?.error || error.message);
+      // Handle different errors gracefully
+      if (error.response) {
+        setErrorMessage(error.response?.data?.error || 'Error occurred during sign up');
+      } else {
+        setErrorMessage('Error occurred during sign up');
+      }
     }
   };
 
   return (
     <div className="signup-container">
       <h2>Sign Up</h2>
+
+      {errorMessage && <p className="error-message">{errorMessage}</p>} {/* Display error message */}
+
       <form onSubmit={handleSubmit}>
         <input
           type="text"
